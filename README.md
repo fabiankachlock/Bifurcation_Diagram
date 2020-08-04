@@ -1,5 +1,5 @@
 # Bifurcation_Diagram
-The code to the blog post. blog.fabiankachlock.de/post/bifurcation_diagram.php
+The code to the [blog post] (blog.fabiankachlock.de/post/bifurcation_diagram.php).
 
 # How to use?
 1. Clone or Download Repository
