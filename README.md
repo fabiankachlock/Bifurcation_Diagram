@@ -1,9 +1,7 @@
 # Bifurcation_Diagram
-The code to the [blog post](blog.fabiankachlock.de/en/Post/bifurcation_diagram.php).
+Explore the beauty of the Bifurcation Diagram!
 
 # How to use?
 1. Clone or Download Repository
-2. Open Bifurcation_Diagram.html in a browser
-3. Call `help()` in the console or read the instructions in my post.
-  [German](http://blog.fabiankachlock.de/de/Post/bifurcation_diagram.php#Instructions)
-  [English](http://blog.fabiankachlock.de/en/Post/bifurcation_diagram.php#Instructions) 
+2. Open Bifurcation_Diagram.html in your browser
+3. Call `help()` in the console and read the instructions
