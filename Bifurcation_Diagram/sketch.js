@@ -2,7 +2,7 @@
 let w;
 let h;
 // iterations of function
-let iterations = 750000;
+let iterations = 500000;
 
 // activate Zoom mode
 let isZoom = false;
@@ -24,7 +24,7 @@ function setup() {
 	// x-axsis: growth rate
 	// y-axsis: population
 	console.clear();
-	alert('Tip: For control or and more information open the console!');
+	alert('Tip: For controls or and more information open the console!');
 	console.info('If you want to know the controls or don\'t know what to do, call help()');
 }
 
@@ -32,7 +32,6 @@ function resize() {
 	w = windowWidth;
 	h = windowHeight;
 	resizeCanvas(w,h);
-
 }
 
 function draw() {
@@ -67,7 +66,7 @@ function setIterations(to) {
 }
 
 function help() {
-	console.info('Here you can see the Bifurcation diagram plotted on a canvas.\nThe the x-axis represents the growth rate r.\nThe y-axis represents the relative population x.\nFor more Infos about the currently plotted graph, you can call logPlot().\n\nControls:\n\nYou can plot various ranges with the plotRange() function. It takes as parameters: 0: From r, 1: to r, 2: min x, 3: max x, 4: iterations. Remember: The bifurcation diagram takes the only r between 0 and 4!\n\nFinding a beautiful spot on the diagram can be hard, therefore I added some pre-made ones. You can call them with plotPointx. I created 0.1, 0.2, 0.02, 0.005, 0.0001, 0.00005 ex: plotPoint005(). These values represent ranges from r, which means, that r will increase by this value from the left to the right of your screen.\n\nFor more information about zooming, call zoomHelp()!');
+	console.info('Here you can see the Bifurcation diagram plotted on a canvas.\nThe the x-axis represents the growth rate r.\nThe y-axis represents the relative population x.\nFor more Infos about the currently plotted graph, you can call logPlot().\n\nControls:\n\nYou can plot various ranges with the plotRange() function. It takes as parameters: 0: From r, 1: to r, 2: min x, 3: max x, 4: iterations. Remember: The bifurcation diagram takes the only r-values between 0 and 4!\n\nFinding a beautiful spot on the diagram can be hard, therefore I added some pre-made ones. You can call them with plotPointx. I created 0.1, 0.2, 0.02, 0.005, 0.0001, 0.00005 ex: plotPoint005(). These values represent ranges from r, which means, that r will increase by this value from the left to the right of your screen.\n\nFor more information about zooming, call zoomHelp()!');
 }
 
 //plotting
@@ -101,26 +100,27 @@ function plotPoint00005() {
 
 function plotRange(_from, _to, _minX, _maxX, _iterations = iterations,zoom = false) {
 	// check values
-	let diff = _to-_from;
-	let diffX = _maxX - _minX;
+	console.time('plotting')
+
+	const diff = _to-_from;
+	const diffX = _maxX - _minX;
 	if (diff <= 0 || diffX <= 0) {
-		console.error('Error: The ranges upper bound can\'t be greater than the lower bound.')
+		console.error('Error: The ranges upperbound can\'t be greater than the lowerbound.')
 		return
 	}
 	if (_from < 0 || _to > 4) {
-		console.error('Error: control parameter out of range')
+		console.error('Error: control parameter r out of range')
 		return
 	}
 	if (_minX < 0 || _maxX > 4) {
 		console.warn('Warning: The range for x is out of bounds, this doesn\'t affect the algorithm, but the visual results might not be as expected.')
-		return
 	}
 
-	let sx = w/diff;
-	let sy = h/diffX;
+	const sx = w/diff;
+	const sy = h/diffX;
 	let add = diff/_iterations;
-	var r = _from; // growth rate
-	var x = (_minX + _maxX)/2; // population size (% of theoretical Max)
+	let r = _from; // growth rate
+	let x = (_minX + _maxX)/2; // population size (% of theoretical Max)
 
 	from = _from;
 	to = _to;
@@ -135,12 +135,13 @@ function plotRange(_from, _to, _minX, _maxX, _iterations = iterations,zoom = fal
 	strokeWeight(1);
 	clearScreen();
 
-	for(r = _from; r < _to; r += add) {
+	for (r = _from; r < _to; r += add) {
 		point((r-_from)*sx, h-(x-_minX)*sy);
 		x = r*x*(1-x);
 	}
 
 	noLoop();
+	console.timeEnd('plotting')
 	/*
 	nice exp:
 	plotRange(3.5976, 3.5979, 0.4, 0.6, 500000)
@@ -154,55 +155,27 @@ function zoomHelp() {
 }
 
 function mouseClicked() {
-	if (isZoom) {
-		let px = mouseX/w;
-		let py = mouseY/h;
+	const px = mouseX/w;
+	const py = mouseY/h;
 
-		let currDiff = to-from;
-		let currDiffX = maxX-minX;
+	const currDiff = to-from;
+	const currDiffX = maxX-minX;
 
-		let newDiff = currDiff/zoomRate;
-		let newDiffX = currDiffX/zoomRate;
+	const newDiff = isZoom ? currDiff/zoomRate : currDiff*zoomRate;
+	const newDiffX = isZoom ? currDiffX/zoomRate : currDiffX*zoomRate;
 
-		let newCenterR = from + (currDiff*px);
-		let newCenterX = maxX - (currDiffX*py);
+	const newCenterR = from + (currDiff*px);
+	const newCenterX = maxX - (currDiffX*py);
 
-		let newfrom = newCenterR-(newDiff/2);
-		let newto = newCenterR+(newDiff/2);
+	const newfrom = newCenterR-(newDiff/2);
+	const newto = newCenterR+(newDiff/2);
+	const newminX = newCenterX-(newDiffX/2);
+	const newmaxX = newCenterX+(newDiffX/2);
+	zoomFactor = isZoom ? zoomFactor * zoomRate :  zoomFactor / zoomRate;
 
-		let newminX = newCenterX-(newDiffX/2);
-		let newmaxX = newCenterX+(newDiffX/2);
+	console.info('current zoom: x' + zoomFactor.toString());
 
-		zoomFactor *= zoomRate;
-		console.info('current zoom: x' + zoomFactor.toString());
-
-		return plotRange(newfrom,newto,newminX,newmaxX,zoomIterations,true);
-
-	} else if (isZoomout) {
-		let px = mouseX/w;
-		let py = mouseY/h;
-
-		let currDiff = to-from;
-		let currDiffX = maxX-minX;
-
-		let newDiff = currDiff*zoomRate;
-		let newDiffX = currDiffX*zoomRate;
-
-		let newCenterR = from + (currDiff*px);
-		let newCenterX = maxX - (currDiffX*py);
-
-		let newfrom = newCenterR-(newDiff/2);
-		let newto = newCenterR+(newDiff/2);
-
-		let newminX = newCenterX-(newDiffX/2);
-		let newmaxX = newCenterX+(newDiffX/2);
-
-		zoomFactor /= zoomRate;
-		console.info('current zoom: x' +  zoomFactor.toString());
-
-		return plotRange(newfrom,newto,newminX,newmaxX,zoomIterations,true);
-	}
-
+	return plotRange(newfrom,newto,newminX,newmaxX,zoomIterations,true);
 }
 
 function zoomIn() {
