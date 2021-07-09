@@ -31,7 +31,7 @@ function setup() {
 function resize() {
 	w = windowWidth;
 	h = windowHeight;
-	resizeCanvas(w,h);
+	resizeCanvas(w, h);
 }
 
 function draw() {
@@ -79,7 +79,7 @@ function plotPoint2() {
 }
 
 function plotPoint1() {
-	plotRange(3.54, 3.64, 0.2,0.7,iterations);
+	plotRange(3.54, 3.64, 0.2, 0.7, iterations);
 }
 
 function plotPoint02() {
@@ -98,11 +98,11 @@ function plotPoint00005() {
 	plotRange(3.57135, 3.57140, 0.469, 0.519, iterations);
 }
 
-function plotRange(_from, _to, _minX, _maxX, _iterations = iterations,zoom = false) {
+function plotRange(_from, _to, _minX, _maxX, _iterations = iterations, zoom = false) {
 	// check values
 	console.time('plotting')
 
-	const diff = _to-_from;
+	const diff = _to - _from;
 	const diffX = _maxX - _minX;
 	if (diff <= 0 || diffX <= 0) {
 		console.error('Error: The ranges upperbound can\'t be greater than the lowerbound.')
@@ -116,11 +116,11 @@ function plotRange(_from, _to, _minX, _maxX, _iterations = iterations,zoom = fal
 		console.warn('Warning: The range for x is out of bounds, this doesn\'t affect the algorithm, but the visual results might not be as expected.')
 	}
 
-	const sx = w/diff;
-	const sy = h/diffX;
-	let add = diff/_iterations;
+	const sx = w / diff;
+	const sy = h / diffX;
+	let add = diff / _iterations;
 	let r = _from; // growth rate
-	let x = (_minX + _maxX)/2; // population size (% of theoretical Max)
+	let x = (_minX + _maxX) / 2; // population size (% of theoretical Max)
 
 	from = _from;
 	to = _to;
@@ -136,8 +136,8 @@ function plotRange(_from, _to, _minX, _maxX, _iterations = iterations,zoom = fal
 	clearScreen();
 
 	for (r = _from; r < _to; r += add) {
-		point((r-_from)*sx, h-(x-_minX)*sy);
-		x = r*x*(1-x);
+		point((r - _from) * sx, h - (x - _minX) * sy);
+		x = r * x * (1 - x);
 	}
 
 	noLoop();
@@ -155,27 +155,27 @@ function zoomHelp() {
 }
 
 function mouseClicked() {
-	const px = mouseX/w;
-	const py = mouseY/h;
+	const px = mouseX / w;
+	const py = mouseY / h;
 
-	const currDiff = to-from;
-	const currDiffX = maxX-minX;
+	const currDiff = to - from;
+	const currDiffX = maxX - minX;
 
-	const newDiff = isZoom ? currDiff/zoomRate : currDiff*zoomRate;
-	const newDiffX = isZoom ? currDiffX/zoomRate : currDiffX*zoomRate;
+	const newDiff = isZoom ? currDiff / zoomRate : currDiff * zoomRate;
+	const newDiffX = isZoom ? currDiffX / zoomRate : currDiffX * zoomRate;
 
-	const newCenterR = from + (currDiff*px);
-	const newCenterX = maxX - (currDiffX*py);
+	const newCenterR = from + (currDiff * px);
+	const newCenterX = maxX - (currDiffX * py);
 
-	const newfrom = newCenterR-(newDiff/2);
-	const newto = newCenterR+(newDiff/2);
-	const newminX = newCenterX-(newDiffX/2);
-	const newmaxX = newCenterX+(newDiffX/2);
-	zoomFactor = isZoom ? zoomFactor * zoomRate :  zoomFactor / zoomRate;
+	const newfrom = newCenterR - (newDiff / 2);
+	const newto = newCenterR + (newDiff / 2);
+	const newminX = newCenterX - (newDiffX / 2);
+	const newmaxX = newCenterX + (newDiffX / 2);
+	zoomFactor = isZoom ? zoomFactor * zoomRate : zoomFactor / zoomRate;
 
 	console.info('current zoom: x' + zoomFactor.toString());
 
-	return plotRange(newfrom,newto,newminX,newmaxX,zoomIterations,true);
+	return plotRange(newfrom, newto, newminX, newmaxX, zoomIterations, true);
 }
 
 function zoomIn() {
@@ -207,4 +207,99 @@ function setZoomRate(to) {
 		return
 	}
 	zoomRate = to;
+}
+
+// Enable functionality for mobile devices
+const inputElement = document.getElementById('someInputField')
+
+const Commands = {
+	"resize": resize,
+	"clearScreen": clearScreen,
+	"plot": plot,
+	"setIterations": setIterations,
+	"plotRange": plotRange,
+	"plotPoint1": plotPoint1,
+	"plotPoint2": plotPoint2,
+	"plotPoint02": plotPoint02,
+	"plotPoint005": plotPoint005,
+	"plotPoint0001": plotPoint0001,
+	"plotPoint00005": plotPoint00005,
+	"help": help,
+	"logPlot": logPlot,
+	"zoomHelp": zoomHelp,
+	"zoomIn": zoomIn,
+	"zoomOut": zoomOut,
+	"disableZoom": disableZoom,
+	"setZoomIterations": setZoomIterations,
+	"setZoomRate": setZoomRate
+}
+
+const ARG_TYPE = {
+	num: 'num',
+}
+
+const ArgConfig = {
+	"resize": [],
+	"clearScreen": [],
+	"plot": [],
+	"setIterations": [ARG_TYPE.num],
+	"plotRange": [ARG_TYPE.num, ARG_TYPE.num, ARG_TYPE.num, ARG_TYPE.num, ARG_TYPE.num],
+	"plotPoint1": [],
+	"plotPoint2": [],
+	"plotPoint02": [],
+	"plotPoint005": [],
+	"plotPoint0001": [],
+	"plotPoint00005": [],
+	"help": [],
+	"logPlot": [],
+	"zoomHelp": [],
+	"zoomIn": [],
+	"zoomOut": [],
+	"disableZoom": [],
+	"setZoomIterations": [ARG_TYPE.num],
+	"setZoomRate": [ARG_TYPE.num]
+}
+
+inputElement.addEventListener('keydown', (evt) => {
+	if (evt.code == 'Enter') {
+		const config = parseCommand(inputElement.value);
+		const argConfig = ArgConfig[config.command]
+		const cleanedArgs = cleanUpArgs(config.arguments, argConfig)
+
+		executeCommand(config.command, cleanedArgs)
+	}
+});
+
+const parseCommand = cmd => {
+	const parts = cmd.split('(');
+	const fName = parts.length > 0 ? parts[0] : '';
+	const args = parts.length > 1 ? parts[1].split(',') : [];
+
+	if (args.length > 0) {
+		// remove closing ')'
+		const lastElm = args[args.length - 1]
+		args[args.length - 1] = lastElm.substring(0, lastElm.length - 1)
+	}
+
+	return {
+		command: fName,
+		arguments: args
+	}
+}
+
+const cleanUpArgs = (args, config) => {
+	for (let i = 0; i < args.length; i++) {
+		if (config[i] === 'num')
+			args[i] = Number(args[i])
+		else if (config[i] === 'str')
+			args[i] = args[i].replaceAll('"', '').replaceAll("'", '').trim()
+	}
+
+	return args
+}
+
+const executeCommand = (command, args) => {
+	const fn = Commands[command]
+	if (fn) fn(...args)
+	else alert("Command not found")
 }
