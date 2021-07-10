@@ -10,22 +10,54 @@
 
 	<!-- using an older version of p5.js significantly improves performance -->
 	<script src="https://cdn.jsdelivr.net/npm/p5@0.7.0/lib/p5.js"></script>
+	<!-- <script src="../.dev/p5.min.js"></script> -->
 	<script src="sketch.js"></script>
 
 	<style>
-		body {
-			margin: 0;
+		* {
 			padding: 0;
+			margin: 0;
+		}
+
+		html {
 			overflow: hidden;
+		}
+
+		body {
+			width: 100vw;
+			height: 100vh;
 		}
 
 		canvas {
 			margin: auto;
 		}
+
+		input {
+			position: absolute;
+			display: none;
+			bottom: 1em;
+			left: 1em;
+			width: calc(50vw - 2em);
+		}
+
+		@media (hover: none) {
+			input {
+				display: block;
+			}
+		}
+
+		input.forceActive {
+			display: block;
+		}
+
+		input.forceInactive {
+			display: none;
+		}
 	</style>
 </head>
 
 <body>
+	<input type="text" id="command">
 </body>
 
 </html>

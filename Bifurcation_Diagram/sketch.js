@@ -23,8 +23,8 @@ function setup() {
 	h = windowHeight;
 	// x-axsis: growth rate
 	// y-axsis: population
-	console.clear();
-	alert('Tip: For controls or and more information open the console!');
+	// console.clear();
+	// alert('Tip: For controls or and more information open the console!');
 	console.info('If you want to know the controls or don\'t know what to do, call help()');
 }
 
@@ -155,6 +155,8 @@ function zoomHelp() {
 }
 
 function mouseClicked() {
+	if (!isZoom) return
+
 	const px = mouseX / w;
 	const py = mouseY / h;
 
@@ -210,7 +212,15 @@ function setZoomRate(to) {
 }
 
 // Enable functionality for mobile devices
-const inputElement = document.getElementById('someInputField')
+const showInput = visible => {
+	if (visible) {
+		document.getElementById('command').classList.add('forceActive')
+		document.getElementById('command').classList.remove('forceInactive')
+	} else {
+		document.getElementById('command').classList.add('forceInactive')
+		document.getElementById('command').classList.remove('forceActive')
+	}
+}
 
 const Commands = {
 	"resize": resize,
@@ -231,11 +241,15 @@ const Commands = {
 	"zoomOut": zoomOut,
 	"disableZoom": disableZoom,
 	"setZoomIterations": setZoomIterations,
-	"setZoomRate": setZoomRate
+	"setZoomRate": setZoomRate,
+	"showInput": showInput,
+	"": () => { }
 }
 
 const ARG_TYPE = {
-	num: 'num',
+	num: 'number',
+	bool: 'bool',
+	str: 'string'
 }
 
 const ArgConfig = {
@@ -257,18 +271,10 @@ const ArgConfig = {
 	"zoomOut": [],
 	"disableZoom": [],
 	"setZoomIterations": [ARG_TYPE.num],
-	"setZoomRate": [ARG_TYPE.num]
+	"setZoomRate": [ARG_TYPE.num],
+	"showInput": [ARG_TYPE.bool],
+	"": [],
 }
-
-inputElement.addEventListener('keydown', (evt) => {
-	if (evt.code == 'Enter') {
-		const config = parseCommand(inputElement.value);
-		const argConfig = ArgConfig[config.command]
-		const cleanedArgs = cleanUpArgs(config.arguments, argConfig)
-
-		executeCommand(config.command, cleanedArgs)
-	}
-});
 
 const parseCommand = cmd => {
 	const parts = cmd.split('(');
@@ -289,10 +295,12 @@ const parseCommand = cmd => {
 
 const cleanUpArgs = (args, config) => {
 	for (let i = 0; i < args.length; i++) {
-		if (config[i] === 'num')
+		if (config[i] === ARG_TYPE.num)
 			args[i] = Number(args[i])
-		else if (config[i] === 'str')
+		else if (config[i] === ARG_TYPE.str)
 			args[i] = args[i].replaceAll('"', '').replaceAll("'", '').trim()
+		else if (config[i] === ARG_TYPE.bool)
+			args[i] = args[i].trim() === "true"
 	}
 
 	return args
@@ -300,6 +308,26 @@ const cleanUpArgs = (args, config) => {
 
 const executeCommand = (command, args) => {
 	const fn = Commands[command]
-	if (fn) fn(...args)
+	if (fn) setTimeout(() => fn(...args), 0)
 	else alert("Command not found")
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+	let inputElement = document.getElementById('command')
+
+	inputElement.addEventListener('keydown', (evt) => {
+		if (evt.code == 'Enter') {
+			const config = parseCommand(inputElement.value);
+			const argConfig = ArgConfig[config.command]
+
+			if (argConfig) {
+				const cleanedArgs = cleanUpArgs(config.arguments, argConfig)
+				executeCommand(config.command, cleanedArgs)
+			} else {
+				executeCommand('@@unknown')
+			}
+
+			inputElement.value = '';
+		}
+	});
+})
